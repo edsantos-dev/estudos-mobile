@@ -10,11 +10,26 @@ class Calculadora extends StatefulWidget {
 }
 
 class _CalculadoraState extends State<Calculadora> {
-  
+
   String _valorDisplay = '0';
 
   void _botaoPressionado(String texto) {
-    print("Botão $texto foi pressionado!");
+
+    setState(() {
+      if (texto == 'C') {
+        _valorDisplay = '0';
+      } 
+      else if (texto == '+' || texto == '-' || texto == 'x' || texto == '/' || texto == '=') {
+        print("Operação $texto aguardando implementação");
+      } 
+      else {
+        if (_valorDisplay == '0') {
+          _valorDisplay = texto;
+        } else {
+          _valorDisplay += texto;
+        }
+      }
+    });
   }
 
   @override

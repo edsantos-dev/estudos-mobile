@@ -12,15 +12,48 @@ class Calculadora extends StatefulWidget {
 class _CalculadoraState extends State<Calculadora> {
 
   String _valorDisplay = '0';
+  double _primeiroNumero = 0;
+  String _operacao = '';
 
   void _botaoPressionado(String texto) {
 
     setState(() {
       if (texto == 'C') {
         _valorDisplay = '0';
+        _primeiroNumero = 0;
+        _operacao = '';
       } 
-      else if (texto == '+' || texto == '-' || texto == 'x' || texto == '/' || texto == '=') {
-        print("Operação $texto aguardando implementação");
+      else if (texto == '+' || texto == '-' || texto == 'x' || texto == '/') {
+        _primeiroNumero = double.parse(_valorDisplay);
+        _operacao = texto;
+        _valorDisplay = '0';
+      } 
+      else if (texto == '=') {
+        double segundoNumero = double.parse(_valorDisplay);
+        double resultado = 0;
+
+        if (_operacao == '+') {
+          resultado = _primeiroNumero + segundoNumero;
+        } else if (_operacao == '-') {
+          resultado = _primeiroNumero - segundoNumero;
+        } else if (_operacao == 'x') {
+          resultado = _primeiroNumero * segundoNumero;
+        } else if (_operacao == '/') {
+          if (segundoNumero == 0) {
+            _valorDisplay = 'Erro';
+            return;
+          }
+          resultado = _primeiroNumero / segundoNumero;
+        }
+
+        if (resultado == resultado.truncateToDouble()) {
+          _valorDisplay = resultado.toInt().toString();
+        } else {
+          _valorDisplay = resultado.toString();
+        }
+
+        _operacao = '';
+        _primeiroNumero = 0;
       } 
       else {
         if (_valorDisplay == '0') {

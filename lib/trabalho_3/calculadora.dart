@@ -15,6 +15,7 @@ class _CalculadoraState extends State<Calculadora> {
   String _historico = '';
   double _primeiroNumero = 0;
   String _operacao = '';
+  bool _finalizouCalculo = false;
 
   void _botaoPressionado(String texto) {
 
@@ -24,12 +25,14 @@ class _CalculadoraState extends State<Calculadora> {
         _primeiroNumero = 0;
         _operacao = '';
         _historico = '';
+        _finalizouCalculo = false;
       } 
       else if (texto == '+' || texto == '-' || texto == 'x' || texto == '/') {
         _primeiroNumero = double.parse(_valorDisplay);
         _operacao = texto;
         _historico = '$_valorDisplay $_operacao';
         _valorDisplay = '0';
+        _finalizouCalculo = false;
       } 
       else if (texto == '=') {
         if (_operacao.isEmpty) return;
@@ -49,6 +52,7 @@ class _CalculadoraState extends State<Calculadora> {
           if (segundoNumero == 0) {
             _valorDisplay = 'Erro';
             _historico = '$_historico $textoSegundoNumero';
+            _finalizouCalculo = true;
             return;
           }
           resultado = _primeiroNumero / segundoNumero;
@@ -63,9 +67,14 @@ class _CalculadoraState extends State<Calculadora> {
         _operacao = '';
         _primeiroNumero = 0;
         _historico = '$_historico $textoSegundoNumero';
+        _finalizouCalculo = true;
       } 
       else {
-        if (_valorDisplay == '0') {
+        if (_finalizouCalculo) {
+          _valorDisplay = texto;
+          _historico = '';
+          _finalizouCalculo = false;
+        } else if (_valorDisplay == '0'){
           _valorDisplay = texto;
         } else {
           _valorDisplay += texto;

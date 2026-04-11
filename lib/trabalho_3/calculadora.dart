@@ -12,6 +12,7 @@ class Calculadora extends StatefulWidget {
 class _CalculadoraState extends State<Calculadora> {
 
   String _valorDisplay = '0';
+  String _historico = '';
   double _primeiroNumero = 0;
   String _operacao = '';
 
@@ -22,15 +23,21 @@ class _CalculadoraState extends State<Calculadora> {
         _valorDisplay = '0';
         _primeiroNumero = 0;
         _operacao = '';
+        _historico = '';
       } 
       else if (texto == '+' || texto == '-' || texto == 'x' || texto == '/') {
         _primeiroNumero = double.parse(_valorDisplay);
         _operacao = texto;
+        _historico = '$_valorDisplay $_operacao';
         _valorDisplay = '0';
       } 
       else if (texto == '=') {
+        if (_operacao.isEmpty) return;
+
         double segundoNumero = double.parse(_valorDisplay);
         double resultado = 0;
+
+        String textoSegundoNumero = _valorDisplay;
 
         if (_operacao == '+') {
           resultado = _primeiroNumero + segundoNumero;
@@ -41,6 +48,7 @@ class _CalculadoraState extends State<Calculadora> {
         } else if (_operacao == '/') {
           if (segundoNumero == 0) {
             _valorDisplay = 'Erro';
+            _historico = '$_historico $textoSegundoNumero';
             return;
           }
           resultado = _primeiroNumero / segundoNumero;
@@ -54,6 +62,7 @@ class _CalculadoraState extends State<Calculadora> {
 
         _operacao = '';
         _primeiroNumero = 0;
+        _historico = '$_historico $textoSegundoNumero';
       } 
       else {
         if (_valorDisplay == '0') {
@@ -74,9 +83,8 @@ class _CalculadoraState extends State<Calculadora> {
       ),
       body: Column(
         children: [
-          Display(valor: _valorDisplay),
+          Display(valor: _valorDisplay, historico: _historico),
           
-          // 2. O teclado da calculadora
           Expanded(
             flex: 3,
             child: Column(

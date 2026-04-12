@@ -12,6 +12,12 @@
             "request": "launch",
             "type": "dart",
             "program": "lib/trabalho_2/main_t2.dart"
+        },
+        {
+            "name": "Trabalho 3: Calculadora Flutter",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/trabalho_3/main_t3.dart"
         }
     ]
 }

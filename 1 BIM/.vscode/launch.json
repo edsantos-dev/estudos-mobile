@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Rodar Trabalho 1",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/trabalho_1/main_t1.dart"
+        },
+        {
+            "name": "Rodar Trabalho 2",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/trabalho_2/main_t2.dart"
+        },
+        {
+            "name": "Trabalho 3: Calculadora Flutter",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/trabalho_3/main_t3.dart"
+        }
+    ]
+}

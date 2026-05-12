@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -43,7 +44,9 @@ const List<TemaItem> temas = <TemaItem>[
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   final List<FilmeItem> filmes = await carregarFilmes();
+
   runApp(MainApp(filmes: filmes));
 }
 
@@ -51,6 +54,7 @@ Future<List<FilmeItem>> carregarFilmes() async {
   final String jsonString = await rootBundle.loadString(
     'assets/data/filmes.json',
   );
+
   final List<dynamic> dados = jsonDecode(jsonString) as List<dynamic>;
 
   return dados
@@ -60,7 +64,10 @@ Future<List<FilmeItem>> carregarFilmes() async {
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key, required this.filmes});
+  const MainApp({
+    super.key,
+    required this.filmes,
+  });
 
   final List<FilmeItem> filmes;
 
@@ -70,16 +77,22 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Aula - Lista de Filmes',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1F6FEB)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1F6FEB),
+        ),
         useMaterial3: true,
       ),
-      home: TelaPrincipalMovieApp(filmes: filmes),
+      home: CatalogoPage(filmes: filmes),
     );
   }
 }
 
-class TelaPrincipalMovieApp extends StatelessWidget {
-  const TelaPrincipalMovieApp({super.key, required this.filmes});
+@RoutePage()
+class CatalogoPage extends StatelessWidget {
+  const CatalogoPage({
+    super.key,
+    required this.filmes,
+  });
 
   final List<FilmeItem> filmes;
 
@@ -98,15 +111,24 @@ class TelaPrincipalMovieApp extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
                 'Temas',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            Expanded(flex: 1, child: TemasGridView(temas: temas)),
+            Expanded(
+              flex: 1,
+              child: TemasGridView(temas: temas),
+            ),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Text(
                 'Filmes em Destaque',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Expanded(
@@ -117,7 +139,8 @@ class TelaPrincipalMovieApp extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DetalhesFilmeScreen(filme: filme),
+                      builder: (context) =>
+                          DetalhesFilmeScreen(filme: filme),
                     ),
                   );
                 },
@@ -130,10 +153,14 @@ class TelaPrincipalMovieApp extends StatelessWidget {
   }
 }
 
+@RoutePage()
 class DetalhesFilmeScreen extends StatelessWidget {
-  final FilmeItem filme;
+  const DetalhesFilmeScreen({
+    super.key,
+    required this.filme,
+  });
 
-  const DetalhesFilmeScreen({super.key, required this.filme});
+  final FilmeItem filme;
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +184,15 @@ class DetalhesFilmeScreen extends StatelessWidget {
                 child: Image.network(
                   filme.imageUrl,
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(child: CircularProgressIndicator());
+                  loadingBuilder:
+                      (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    }
+
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
                   },
                   errorBuilder: (context, error, stackTrace) {
                     return Container(

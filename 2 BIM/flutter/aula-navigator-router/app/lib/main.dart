@@ -1,17 +1,20 @@
 import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:example_application/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:auto_route/auto_route.dart';
+
 import 'models/filme_item.dart';
 import 'models/tema_item.dart';
+import 'routes/app_router.dart';
 import 'widgets/filmes_listview.dart';
 import 'widgets/temas_gridview.dart';
 
-/// Router global (NÃO dentro do build)
-final AppRouter _appRouter = AppRouter();
+/// Router global
+final AppRouter appRouter = AppRouter();
+
+/// Lista global de filmes
+late List<FilmeItem> filmesGlobais;
 
 const List<TemaItem> temas = <TemaItem>[
   TemaItem(
@@ -46,13 +49,12 @@ const List<TemaItem> temas = <TemaItem>[
   ),
 ];
 
-/// ---------------- MAIN ----------------
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final filmes = await carregarFilmes();
+  filmesGlobais = await carregarFilmes();
 
-  runApp(MainApp(filmes: filmes));
+  runApp(const MainApp());
 }
 
 Future<List<FilmeItem>> carregarFilmes() async {
@@ -65,9 +67,7 @@ Future<List<FilmeItem>> carregarFilmes() async {
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key, required this.filmes});
-
-  final List<FilmeItem> filmes;
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,18 +80,14 @@ class MainApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-
-      /// 🔥 AutoRoute no app inteiro
-      routerConfig: _appRouter.config(),
+      routerConfig: appRouter.config(),
     );
   }
 }
 
 @RoutePage()
 class CatalogoPage extends StatelessWidget {
-  const CatalogoPage({super.key, required this.filmes});
-
-  final List<FilmeItem> filmes;
+  const CatalogoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -108,26 +104,34 @@ class CatalogoPage extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
                 'Temas',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
 
-            Expanded(flex: 1, child: TemasGridView(temas: temas)),
+            Expanded(
+              flex: 1,
+              child: TemasGridView(temas: temas),
+            ),
 
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Text(
                 'Filmes em Destaque',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
 
             Expanded(
               flex: 4,
               child: FilmesListView(
-                filmes: filmes,
+                filmes: filmesGlobais,
                 onTap: (filme) {
-                  /// 🔥 AutoRoute navigation
                   context.router.push(
                     DetalhesFilmeRoute(filme: filme),
                   );
@@ -157,7 +161,9 @@ class DetalhesFilmeScreen extends StatelessWidget {
         title: const Text('Detalhes do Filme'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
       ),
       body: Center(
@@ -172,13 +178,17 @@ class DetalhesFilmeScreen extends StatelessWidget {
                 child: Image.network(
                   filme.imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: Colors.grey,
-                    child: const Icon(Icons.broken_image),
-                  ),
+                  errorBuilder: (_, __, ___) {
+                    return Container(
+                      color: Colors.grey,
+                      child: const Icon(Icons.broken_image),
+                    );
+                  },
                 ),
               ),
+
               const SizedBox(height: 16),
+
               Text(
                 filme.titulo,
                 style: const TextStyle(

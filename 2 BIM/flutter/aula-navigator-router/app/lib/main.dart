@@ -1,13 +1,17 @@
 import 'dart:convert';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:example_application/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:auto_route/auto_route.dart';
 import 'models/filme_item.dart';
 import 'models/tema_item.dart';
 import 'widgets/filmes_listview.dart';
 import 'widgets/temas_gridview.dart';
+
+/// Router global (NÃO dentro do build)
+final AppRouter _appRouter = AppRouter();
 
 const List<TemaItem> temas = <TemaItem>[
   TemaItem(
@@ -42,57 +46,50 @@ const List<TemaItem> temas = <TemaItem>[
   ),
 ];
 
+/// ---------------- MAIN ----------------
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final List<FilmeItem> filmes = await carregarFilmes();
+  final filmes = await carregarFilmes();
 
   runApp(MainApp(filmes: filmes));
 }
 
 Future<List<FilmeItem>> carregarFilmes() async {
-  final String jsonString = await rootBundle.loadString(
-    'assets/data/filmes.json',
-  );
+  final String jsonString =
+      await rootBundle.loadString('assets/data/filmes.json');
 
-  final List<dynamic> dados = jsonDecode(jsonString) as List<dynamic>;
+  final List<dynamic> dados = jsonDecode(jsonString);
 
-  return dados
-      .cast<Map<String, dynamic>>()
-      .map(FilmeItem.fromJson)
-      .toList(growable: false);
+  return dados.map((e) => FilmeItem.fromJson(e)).toList();
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({
-    super.key,
-    required this.filmes,
-  });
+  const MainApp({super.key, required this.filmes});
 
   final List<FilmeItem> filmes;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Aula - Lista de Filmes',
+      title: 'Movie App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1F6FEB),
         ),
         useMaterial3: true,
       ),
-      home: CatalogoPage(filmes: filmes),
+
+      /// 🔥 AutoRoute no app inteiro
+      routerConfig: _appRouter.config(),
     );
   }
 }
 
 @RoutePage()
 class CatalogoPage extends StatelessWidget {
-  const CatalogoPage({
-    super.key,
-    required this.filmes,
-  });
+  const CatalogoPage({super.key, required this.filmes});
 
   final List<FilmeItem> filmes;
 
@@ -106,42 +103,33 @@ class CatalogoPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
+          children: [
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
                 'Temas',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: TemasGridView(temas: temas),
-            ),
+
+            Expanded(flex: 1, child: TemasGridView(temas: temas)),
+
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Text(
                 'Filmes em Destaque',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
+
             Expanded(
               flex: 4,
               child: FilmesListView(
                 filmes: filmes,
                 onTap: (filme) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          DetalhesFilmeScreen(filme: filme),
-                    ),
+                  /// 🔥 AutoRoute navigation
+                  context.router.push(
+                    DetalhesFilmeRoute(filme: filme),
                   );
                 },
               ),
@@ -174,33 +162,20 @@ class DetalhesFilmeScreen extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
+            children: [
               SizedBox(
                 width: 320,
                 height: 180,
                 child: Image.network(
                   filme.imageUrl,
                   fit: BoxFit.cover,
-                  loadingBuilder:
-                      (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[300],
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.broken_image),
-                    );
-                  },
+                  errorBuilder: (_, __, ___) => Container(
+                    color: Colors.grey,
+                    child: const Icon(Icons.broken_image),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
